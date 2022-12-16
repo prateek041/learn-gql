@@ -1,9 +1,14 @@
 const express = require("express");
-
+const { graphqlHTTP } = require("express-graphql");
 const app = express()
+const schema = require("./schema/schema") // importing the schema
+require('dotenv').config()
 
-app.get("/", (req, res)=>{
-  res.status(200).send("This is the test server")
-})
+const port = process.env.PORT || 5000
 
-app.listen(9090, console.log("Listening to port 9090"))
+app.use('/graphql', graphqlHTTP({
+  schema,
+  graphiql: process.env.NODE_ENV === "development"
+}))
+
+app.listen(port, console.log(`Listening to port ${port}`))

@@ -1,6 +1,7 @@
 const { projects, clients } = require('../sampleData')
-
 const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLSchema, GraphQLList, GraphQLBoolean } = require('graphql')
+const Client = require('../models/Client') // importing the client schema
+const Project = require('../models/Project') // importing the project schema
 
 // Now we will use objects to define different entities
 // Client type:
@@ -24,8 +25,8 @@ const ProjectType = new GraphQLObjectType({
     status: {type: GraphQLBoolean},
     client: {
       type:ClientType,
-      resolve(parent, args){ // parent argument gives access to that object the called this field in the first place
-        return clients.find(client => client.id === parent.clientId) 
+      resolve(parent, args){ // parent argument gives access to the object that called this field in the first place, i.e. project object
+        return Client.find(parent.clientId) 
       }
     } // this is a relation between client and projects
   }
@@ -39,28 +40,28 @@ const RootQuery = new GraphQLObjectType({
     clients: {
       type: new GraphQLList(ClientType), // this query will return graphql List type of ClientType
       resolve(){
-        return clients
+        return Client.find();
       }
     },
     client: {
       type: ClientType,
       args: {id:{type: GraphQLID}},
       resolve(_, args){
-        return clients.find(client => client.id === args.id)
+        return Client.find(args.id)
     }},
 
     // project endpoints
     projects: {
       type: new GraphQLList(ProjectType),
       resolve(){
-        return projects
+        return Project.find()
       }
     },
     project: {
       type: ProjectType,
       args: ({id: {type: GraphQLID}}),
       resolve(_, args){
-        return projects.find(project => project.id === args.id)
+        return Project.find(args.id)
       }
     }
   }
